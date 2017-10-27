@@ -13,6 +13,12 @@ If you are in China and experience a significant slow pulling speed from [Docker
 
 This is a markdown note that document virtually every important process of my struggle to run X server and spice in a docker container. This is part also of my job as an Intern.
 
+###Phase 1
+
+*This phase is a bad start, you may skip to Phase 2.*
+
+*The following two Docker file can be find in First try directory.*
+
 ### Dockerfile_171026_01_XSpicetry01
 
 It's my first try to write my own Dockerfile, which ends up not so good. I initially look for a image that have standard components, command, web browser, video player and X, VNC, XSpice installed. However, the disorganized `RUN` part leads to a bad result. 
@@ -133,7 +139,7 @@ RUN apt-get update \
 
 `curl` : command line tool for transferring data with URL syntax
 
-`net` : A collection of programs that form the base set of the NET-3 networking distribution, e.g. `ifconfig`.
+`net-tools` : A collection of programs that form the base set of the NET-3 networking distribution, e.g. `ifconfig`.
 
 
 
@@ -141,7 +147,7 @@ RUN apt-get update \
 
 #### Output
 
-Installation was successful with a 2.6GB image created, this 
+Installation was successful with a 2.6GB image created, this resembles XSpicetry01 very much, with some deletes and order adjustments. However, X server failed to start, I would assume it is because `xserver-xspice xinput` that I learned from [Xspice server in a Container [Ghanima]](http://ghanima.net/doku.php?id=wiki:ghanima:xspiceservercontainer). 
 
 #### Dockerfile
 
@@ -218,21 +224,85 @@ EXPOSE 22
 #ENTRYPOINT ["./startup.sh"]
 ```
 
-
-
 ####What is to learn ?
 
+Unfortunately, there isn't much to learn even we have successfully build this image and run it interactively with command line, because accessing it graphically is instead our goal.
+
+`RUN echo "root:Docker!" | chpasswd` : Since we added `sudo` package, we sometimes are required a root password, the above command perform a root password setting with `Docker!` to be its password.
 
 
 
+###Phase 2
+
+### Ubuntu-16.04-vnc-xfce 
+
+I found a [xfce](https://xfce.org/) desktop and VNC installed Ubuntu Docker image on [Docker Hub](https://hub.docker.com/r/welkineins/ubuntu-xfce-vnc-desktop/). It works perfect and with some great fundamental features. It was built from a `ubuntu:14.04` image, I tried to modified it to `16.04` and added `sudo` in it because this package is no longer considered in the minimum image. I started with VNC because it is also a remote graphical desktop control solution with some installation and port setup, learning from here could be a reasonably good start.
 
 #### Output
 
+Xfce, when based on `ubuntu:16.04`, looks a bit better than `ubuntu:14.04`.  Inside the directory that contains `Dockefile`, `startup.sh`  and `supervisord.conf` ,, build image yourself and then run with following command
+
+`docker run -i -t -p 5900:5900 <your name>/<your image name>`
+
+*Notice, you might want to use `-d` (i.e. detached mode) instead of `-i -t` if you don't want closing terminal or exit tty to cause a stop of your container. `5900` on the left can be any available port you want to connect to your container using VNC.*
+
+```
+-t              : Allocate a pseudo-tty
+-i              : Keep STDIN open even if not attached
+```
+
 ####Dockerfile
+
+```dockerfile
+FROM ubuntu:16.04
+MAINTAINER Hao Yuan <freegleyuan@foxmail.com>
+
+ENV HOME /root
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+	&& apt-get install -y supervisor \
+		sudo \
+		net-tools \
+		iputils-ping \
+		openssh-server vim-tiny \
+		xfce4 xfce4-goodies \
+		x11vnc xvfb \
+		firefox \
+	&& apt-get autoclean \
+	&& apt-get autoremove \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root
+
+ADD startup.sh ./
+ADD supervisord.conf ./
+
+EXPOSE 5900
+EXPOSE 22
+
+ENTRYPOINT ["./startup.sh"]
+```
+
+
 
 #### What is to learn ?
 
+After image has been created and container started, I discovered that 16.04 has a more minimized 'smallest' image comparing to 14.04, `ifconfig`, `ping` and some related `net-tools` and `iputils-ping`packages are not included. So I add it inside Dockerfile and build again(The Dockerfile above includes). 
 
+**If `ENTRYPOINT` is a .sh script file?**
+
+Under such condition, we **MUST** make this script file executable rather than just a plain text file by employee following command, or you should encounter errors indicating 'permission denied' as you run your container.
+
+`sudo chmod +x /path/to/script.sh`  
+
+I notice that many GUI container images on Docker Hub uses [XFCE](https://xfce.org/) or [LXDE](http://lxde.org/) instead of [GNOME](https://www.gnome.org/) as their desktop, I would assume it is because the first two are more light weight, and graphic performance and resources are something we don't have a lot inside a container. [Here](https://hub.docker.com/r/garland/dockerfile-ubuntu-gnome/) is a ubuntu image that come with GNOME, you may want to refer the Dockerfile to enable GNOME in your image.
+
+
+
+### Enable XSpice by operating container
+
+Here I don't jump to write my own Dockerfile to enable XSpice, because build could significantly occupies time and space. So based on the image above, I directly operate a container started from it trying to install XSpice in it. We assume we are to use 5910 port to run XSpice, so inside the Dockerfile, we additionally write `EXPOSE 5910`. 
 
 #### Output
 
