@@ -1,0 +1,70 @@
+FROM ubuntu:16.04
+MAINTAINER Hao Yuan <freegleyuan@foxmail.com>
+
+ENV HOME /root
+ENV DEBIAN_FRONTEND=noninteractive
+
+#set up proxy for intel inner network
+#ENV https_proxy "https://child-prc.intel.com:913/"
+#ENV http_proxy "http://child-prc.intel.com:913/"
+#ENV ftp_proxy "http://child-prc.intel.com:913/"
+#ENV no_proxy "localhost,127.0.0.1,.intel.com"
+
+
+RUN apt-get update \
+	&& apt-get install -y supervisor \
+		apt-utils \
+		aufs-tools \
+		automake \
+		bash-completion \
+		binutils-mingw-w64 \
+		bsdmainutils \
+		btrfs-tools \
+		build-essential \
+		clang \
+		cmake \
+		createrepo \
+		curl \
+		dpkg-sig \
+		gcc-mingw-w64 \
+		git \
+		iptables \
+		jq \
+		less \
+		net-tools \
+		pkg-config \
+		protobuf-compiler \
+		protobuf-c-compiler \
+		python-dev \
+		python-mock \
+		python-pip \
+		python-websocket \
+		sudo \
+		tar \
+		vim \
+		vim-common \
+		xfsprogs \
+		zip \
+		openssh-server vim-tiny \
+		xfce4 xfce4-goodies \
+		x11vnc xvfb \
+		firefox \
+		mplayer \
+		software-properties-common \
+		xserver-xspice xinput \
+	&& apt-get autoclean \
+	&& apt-get autoremove \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN echo "root:Docker!" | chpasswd
+
+WORKDIR /root
+
+#ADD startup.sh ./
+#ADD supervisord.conf ./
+
+EXPOSE 5900
+EXPOSE 5910
+EXPOSE 22
+
+#ENTRYPOINT ["./startup.sh"]
