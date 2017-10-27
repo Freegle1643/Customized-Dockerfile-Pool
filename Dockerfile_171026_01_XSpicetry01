@@ -10,9 +10,7 @@ ENV ftp_proxy "http://child-prc.intel.com:913/"
 ENV no_proxy "localhost,127.0.0.1,.intel.com"
 
 
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  	&& echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list \
-	&& apt-get update \
+RUN apt-get update \
 	&& apt-get install -y supervisor \
 		apt-utils \
 		aufs-tools \
@@ -60,7 +58,6 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 		xfce4 xfce4-goodies \
 		x11vnc xvfb \
 		firefox \
-		google-chrome-stable \
 		mplayer \
 		xserver-xspice xinput \
 	&& apt-get autoclean \
