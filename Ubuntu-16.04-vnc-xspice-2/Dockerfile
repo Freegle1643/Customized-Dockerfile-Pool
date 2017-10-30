@@ -10,9 +10,11 @@ RUN apt-get update \
 		net-tools \
 		iputils-ping \
 		openssh-server vim-tiny \
+		xauth xorg openbox lightdm plymouth \
 		xfce4 xfce4-goodies \
 		x11vnc xvfb \
 		firefox \
+		xserver-xspice \
 	&& apt-get autoclean \
 	&& apt-get autoremove \
 	&& rm -rf /var/lib/apt/lists/*

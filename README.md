@@ -13,7 +13,7 @@ If you are in China and experience a significant slow pulling speed from [Docker
 
 This is a markdown note that document virtually every important process of my struggle to run X server and spice in a docker container. This is part also of my job as an Intern.
 
-###Phase 1
+### Phase 1
 
 *This phase is a bad start, you may skip to Phase 2.*
 
@@ -23,11 +23,11 @@ This is a markdown note that document virtually every important process of my st
 
 It's my first try to write my own Dockerfile, which ends up not so good. I initially look for a image that have standard components, command, web browser, video player and X, VNC, XSpice installed. However, the disorganized `RUN` part leads to a bad result. 
 
-####Output
+#### Output
 
 Failed while installation. 
 
-####Dockerfile
+#### Dockerfile
 
 ```dockerfile
 FROM ubuntu:16.04
@@ -224,7 +224,7 @@ EXPOSE 22
 #ENTRYPOINT ["./startup.sh"]
 ```
 
-####What is to learn ?
+#### What is to learn ?
 
 Unfortunately, there isn't much to learn even we have successfully build this image and run it interactively with command line, because accessing it graphically is instead our goal.
 
@@ -232,7 +232,7 @@ Unfortunately, there isn't much to learn even we have successfully build this im
 
 
 
-###Phase 2
+### Phase 2
 
 ### Ubuntu-16.04-vnc-xfce 
 
@@ -251,7 +251,7 @@ Xfce, when based on `ubuntu:16.04`, looks a bit better than `ubuntu:14.04`.  Ins
 -i              : Keep STDIN open even if not attached
 ```
 
-####Dockerfile
+#### Dockerfile
 
 ```dockerfile
 FROM ubuntu:16.04
