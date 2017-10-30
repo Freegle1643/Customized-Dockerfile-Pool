@@ -1,4 +1,5 @@
 # Customized-Dockerfile-Pool
+
 *This is a repository I use mainly to manage all my customized Dockerfiles in one place.*
 
 git repository: https://github.com/Freegle1643/Customized-Dockerfile-Pool
@@ -15,7 +16,7 @@ This is a markdown note that document virtually every important process of my st
 
 ### Phase 1
 
-*This phase is a bad start, you may skip to Phase 2.*
+***This phase is a bad start, you may skip to Phase 2.***
 
 *The following two Docker file can be find in First try directory.*
 
@@ -234,17 +235,19 @@ Unfortunately, there isn't much to learn even we have successfully build this im
 
 ### Phase 2
 
-### Ubuntu-16.04-vnc-xfce 
+### Ubuntu-16.04-vnc-xfce
 
 I found a [xfce](https://xfce.org/) desktop and VNC installed Ubuntu Docker image on [Docker Hub](https://hub.docker.com/r/welkineins/ubuntu-xfce-vnc-desktop/). It works perfect and with some great fundamental features. It was built from a `ubuntu:14.04` image, I tried to modified it to `16.04` and added `sudo` in it because this package is no longer considered in the minimum image. I started with VNC because it is also a remote graphical desktop control solution with some installation and port setup, learning from here could be a reasonably good start.
 
 #### Output
 
-Xfce, when based on `ubuntu:16.04`, looks a bit better than `ubuntu:14.04`.  Inside the directory that contains `Dockefile`, `startup.sh`  and `supervisord.conf` ,, build image yourself and then run with following command
+Xfce, when based on `ubuntu:16.04`, looks a bit better than `ubuntu:14.04`.  Inside the directory that contains `Dockefile`, `startup.sh`  and `supervisord.conf` (**DO PLEASE DOWNLOAD THE WHOLE [DIRECTORY](https://github.com/Freegle1643/Customized-Dockerfile-Pool/tree/master/Ubuntu-16.04-vnc-xfce), AND BUILD DOCKER INSIDE WHERE `Dockerfile` EXISTS**) , build image yourself and then run with following command
 
 `docker run -i -t -p 5900:5900 <your name>/<your image name>`
 
-*Notice, you might want to use `-d` (i.e. detached mode) instead of `-i -t` if you don't want closing terminal or exit tty to cause a stop of your container. `5900` on the left can be any available port you want to connect to your container using VNC.*
+*`5900` on the left can be any available port you want to connect to your container using VNC.*
+
+*Notice, you might want to use `-d` (i.e. detached mode) instead of `-i -t` if you don't want closing terminal or exit tty to cause a stop of your container. **However**, according to my experience on this image, such operation could lead to unsuccessful start. You can definitely try other method not to attach to terminal of container. Like simply type `exit` to detach container tty, and restart the container, now you would not be attached to the tty so that you can continue doing your task.*
 
 ```
 -t              : Allocate a pseudo-tty
@@ -304,17 +307,159 @@ I notice that many GUI container images on Docker Hub uses [XFCE](https://xfce.o
 
 Here I don't jump to write my own Dockerfile to enable XSpice, because build could significantly occupies time and space. So based on the image above, I directly operate a container started from it trying to install XSpice in it. We assume we are to use 5910 port to run XSpice, so inside the Dockerfile, we additionally write `EXPOSE 5910`. 
 
-#### Output
-
-#### Dockerfile
-
-#### What is to learn ?
-
-
+*ps. After a few attempts, I find by adding `xserver-xspice` into Dockerfile can also lead to a successful installation, so I added that afterwards.*
 
 #### Output
 
+Just like the image above, a xfce desktop installed container could be started and run. And I tried my best to  find ways to start xspice server inside container, but it failed many times with error described in [this public email](https://groups.google.com/forum/#!topic/linux.debian.user/s4o6r7ioFMo). Also, like the user of this email, there are only two document available about how should we run xspice inside a container:
+
+- [Xspice server in a Container [Ghanima]](http://ghanima.net/doku.php?id=wiki:ghanima:xspiceservercontainer)
+- [Xspice in containers | S3hh's Blog](https://s3hh.wordpress.com/2014/04/18/xspice-in-containers/)
+
 #### Dockerfile
+
+```dockerfile
+FROM ubuntu:16.04
+MAINTAINER Hao Yuan <freegleyuan@foxmail.com>
+
+ENV HOME /root
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+	&& apt-get install -y supervisor \
+		sudo \
+		net-tools \
+		iputils-ping \
+		openssh-server vim-tiny \
+		xauth xorg openbox lightdm plymouth \
+		xfce4 xfce4-goodies \
+		x11vnc xvfb \
+		firefox \
+		xserver-xspice \
+	&& apt-get autoclean \
+	&& apt-get autoremove \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root
+
+ADD startup.sh ./
+ADD supervisord.conf ./
+
+EXPOSE 5900
+EXPOSE 5910
+EXPOSE 22
+
+ENTRYPOINT ["./startup.sh"]
+```
+
+
+
+#### Extra operations
+
+*The following contents are based on the two links above and my personal experience. Should you have further question, please kindly email freegleyuan@foxmail.com*
+
+1. We manually installed `xserver-xspice` to enable Spice combined with X in container(**or if you install it with `Dockerfile`, you can skip this installation**). After that, we use `ps -ef|grep X` and **find which DISPLAY does X currently run on**. Typically, we shall see `:<somenumber>`  to find out. Then you should run `export DISPLAY=:<somenumber>` to specific `$DISPLAY`.
+
+2. After that, we need to **test if Xspice is working**.  
+
+   ```bash
+   cp /usr/share/doc/xserver-xspice/spiceqxl.xorg.conf.example .
+   sudo mv spiceqxl.xorg.conf.example spiceqxl.xorg.conf
+   ```
+
+3. Now we should try this command to run Xspice
+
+   ```bash
+   sudo Xspice --port 5910 --disable-ticketing --tls-port 0 -noreset $DISPLAY
+   ```
+
+4. We can now connect our container via any machine in local network (since we didn't specific IP in the command above)
+
+   On the host side, where we want to use spice to connect to container, we may employee either `spicec` or `spicy` to connect to our container, more detailed usage could be listed out adding `--help`. 
+
+   ```bash
+   spicy --host <container ip> -p 5910
+   ```
+
+   or
+
+   ```bash
+   spicec -h <container ip> -p 5900
+   ```
+
+#### Errors
+
+I stuck at step 3 with exactly the same error output with the [email](https://groups.google.com/forum/#!topic/linux.debian.user/s4o6r7ioFMo) I mentioned above and tried many solutions I find on Google. But I still failed.
+
+##### Error output
+
+```bash
+_XSERVTransSocketUNIXCreateListener: ...SocketCreateListener() failed 
+_XSERVTransMakeAllCOTSServerListeners: server already running 
+(EE)  
+Fatal server error: 
+(EE) Cannot establish any listening sockets - Make sure an X server isn't already running(EE)  
+(EE) 
+```
+
+Some say we can use `netstat -ln` to check if X server is running by identify if there is a process listening port 6000. I didn't find any. But according to [xserver-xspice : Trusty (14.04) : Ubuntu](https://launchpad.net/ubuntu/trusty/+package/xserver-xspice), this is a package contains *Xspice is an X server and Spice server in one*. That where I got confused.
+
+##### `supervisord.conf`
+
+The  [image](https://github.com/welkineins/docker-ubuntu-xfce-vnc-desktop) that my customized image bases on offers a `startup.sh` and `supervisord.conf` file to help in image build process, I checked the latter file:
+
+```
+[supervisord]
+nodaemon=false
+
+[program:ssh]
+priority=10
+directory=/
+command=/usr/sbin/sshd -D
+user=root
+autostart=true
+autorestart=true
+stopsignal=QUIT
+
+[program:startxfce4]
+priority=10
+directory=/root
+command=/usr/bin/startxfce4
+user=root
+autostart=true
+autorestart=true
+stopsignal=QUIT
+environment=DISPLAY=":1",HOME="/root"
+stdout_logfile=/var/log/xfce4.log
+stderr_logfile=/var/log/xfce4.err
+
+[program:xvfb]
+priority=10
+directory=/
+command=/usr/bin/Xvfb :1 -screen 0 1024x768x16
+user=root
+autostart=true
+autorestart=true
+stopsignal=QUIT
+stdout_logfile=/var/log/xvfb.log
+stderr_logfile=/var/log/xvfb.err
+
+[program:x11vnc]
+priority=10
+directory=/
+command=x11vnc -display :1 -xkb
+#command=x11vnc -display :1 -listen localhost -xkb
+user=root
+autostart=true
+autorestart=true
+stopsignal=QUIT
+stdout_logfile=/var/log/x11vnc.log
+stderr_logfile=/var/log/x11vnc.err
+```
+
+We can see there are some setup process, maybe we should edit or add some commands here in order to setup Xspice properly? I'm still working on it. 
+
+
 
 #### What is to learn ?
 
