@@ -358,7 +358,7 @@ ENTRYPOINT ["./startup.sh"]
 
 *The following contents are based on the two links above and my personal experience. Should you have further question, please kindly email freegleyuan@foxmail.com*
 
-1. We manually installed `xserver-xspice` to enable Spice combined with X in container(**or if you install it with `Dockerfile`, you can skip this installation**). After that, we use `ps -ef|grep X` and **find which DISPLAY does X currently run on**. Typically, we shall see `:<somenumber>`  to find out. Then you should run `export DISPLAY=:<somenumber>` to specific `$DISPLAY`.
+1. We manually installed `xserver-xspice` to enable Spice combined with X in container(**or if you install it with `Dockerfile`updated above, you can skip this manual installation**). After that, we use `ps -ef|grep X` and **find which DISPLAY does X currently run on**. Typically, we shall see `:<somenumber>`  to find out. Then you should run `export DISPLAY=:<somenumber>` to specific `$DISPLAY`.
 
 2. After that, we need to **test if Xspice is working**.  
 
