@@ -360,6 +360,15 @@ ENTRYPOINT ["./startup.sh"]
 
 1. We manually installed `xserver-xspice` to enable Spice combined with X in container(**or if you install it with `Dockerfile`updated above, you can skip this manual installation**). After that, we use `ps -ef|grep X` and **find which DISPLAY does X currently run on**. Typically, we shall see `:<somenumber>`  to find out. Then you should run `export DISPLAY=:<somenumber>` to specific `$DISPLAY`.
 
+   ```bash
+   root@f1c184660381:~# ps -ef|grep X
+   root         17     11  0 01:33 ?        00:00:00 /bin/sh /etc/xdg/xfce4/xinitrc -- /etc/X11/xinit/xserverrc
+   root         18     11  7 01:33 ?        00:07:50 /usr/bin/Xvfb :1 -screen 0 1024x768x16
+   root        231     12  0 03:23 ?        00:00:00 grep --color=auto X
+   ```
+
+   We can see that [Xvfb](en.wikipedia.org/wiki/Xvfb) is currently running on` :1` , so we type  `export DISPLAY=:1`.
+
 2. After that, we need to **test if Xspice is working**.  
 
    ```bash
@@ -394,12 +403,19 @@ I stuck at step 3 with exactly the same error output with the [email](https://gr
 ##### Error output
 
 ```bash
-_XSERVTransSocketUNIXCreateListener: ...SocketCreateListener() failed 
-_XSERVTransMakeAllCOTSServerListeners: server already running 
-(EE)  
-Fatal server error: 
-(EE) Cannot establish any listening sockets - Make sure an X server isn't already running(EE)  
+_XSERVTransSocketUNIXCreateListener: ...SocketCreateListener() failed
+_XSERVTransMakeAllCOTSServerListeners: server already running
 (EE) 
+Fatal server error:
+(EE) Cannot establish any listening sockets - Make sure an X server isn't already running(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) Please also check the log file at "/var/log/Xorg.1.log" for additional information.
+(EE) 
+(EE) Server terminated with error (1). Closing log file.
+Error: X server is not running
 ```
 
 Some say we can use `netstat -ln` to check if X server is running by identify if there is a process listening port 6000. I didn't find any. But according to [xserver-xspice : Trusty (14.04) : Ubuntu](https://launchpad.net/ubuntu/trusty/+package/xserver-xspice), this is a package contains *Xspice is an X server and Spice server in one*. That where I got confused.
