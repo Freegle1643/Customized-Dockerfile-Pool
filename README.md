@@ -372,8 +372,8 @@ ENTRYPOINT ["./startup.sh"]
 2. After that, we need to **test if Xspice is working**.  
 
    ```bash
-   cp /usr/share/doc/xserver-xspice/spiceqxl.xorg.conf.example .
-   sudo mv spiceqxl.xorg.conf.example spiceqxl.xorg.conf
+   cp /usr/share/doc/xserver-xspice/spiceqxl.xorg.conf.example.gz /root
+   sudo gunzip spiceqxl.xorg.conf.example.gz
    ```
 
 3. Now we should try this command to run Xspice
@@ -403,6 +403,26 @@ I stuck at step 3 with exactly the same error output with the [email](https://gr
 ##### Error output
 
 ```bash
+root@a0f992834058:/usr/share/doc/xserver-xspice# sudo Xspice --port 5910 --disable-ticketing --tls-port 0 -noreset $DISPLAY
+(EE) 
+Fatal server error:
+(EE) Server is already active for display 1
+	If this server is no longer running, remove /tmp/.X1-lock
+	and start again.
+(EE) 
+(EE) 
+Please consult the The X.Org Foundation support 
+	 at http://wiki.x.org
+ for help. 
+(EE) 
+Error: X server is not running
+```
+
+First attemp to run step 3 lead to an output above, and I tried again with following operation.
+
+```bash
+root@a0f992834058:/usr/share/doc/xserver-xspice# rm /tmp/.X1-lock 
+root@a0f992834058:/usr/share/doc/xserver-xspice# sudo Xspice --port 5910 --disable-ticketing --tls-port 0 -noreset $DISPLAY
 _XSERVTransSocketUNIXCreateListener: ...SocketCreateListener() failed
 _XSERVTransMakeAllCOTSServerListeners: server already running
 (EE) 
@@ -418,7 +438,11 @@ Please consult the The X.Org Foundation support
 Error: X server is not running
 ```
 
+Then I met the exactly same error out with the one mentioned in the email above. I got confused, because it seemes that two error outputs represent two opposite situation(ie. one suggests X server is running and the other one indicates it's not).
+
 Some say we can use `netstat -ln` to check if X server is running by identify if there is a process listening port 6000. I didn't find any. But according to [xserver-xspice : Trusty (14.04) : Ubuntu](https://launchpad.net/ubuntu/trusty/+package/xserver-xspice), this is a package contains *Xspice is an X server and Spice server in one*. That where I got confused.
+
+*It could also be a probelm that the process that occupies display 1 is Xvfb rather than X server.*
 
 ##### `supervisord.conf`
 
@@ -472,6 +496,8 @@ stopsignal=QUIT
 stdout_logfile=/var/log/x11vnc.log
 stderr_logfile=/var/log/x11vnc.err
 ```
+
+*This is the original `supervisord.conf` file, in the later usage, I correspondingly delete some part according to the modification I made in `Dockerfile`*
 
 We can see there are some setup process, maybe we should edit or add some commands here in order to setup Xspice properly? I'm still working on it. 
 
