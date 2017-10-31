@@ -374,12 +374,18 @@ ENTRYPOINT ["./startup.sh"]
    ```bash
    cp /usr/share/doc/xserver-xspice/spiceqxl.xorg.conf.example.gz /root
    sudo gunzip spiceqxl.xorg.conf.example.gz
+   mv spiceqxl.xorg.conf.example.gz spiceqxl.xorg.conf.example
    ```
 
 3. Now we should try this command to run Xspice
 
    ```bash
    sudo Xspice --port 5910 --disable-ticketing --tls-port 0 -noreset $DISPLAY
+   ```
+   or
+
+   ```bash
+   /usr/bin/Xorg -config /root/spiceqxl.org.conf :<somenumber>
    ```
 
 4. We can now connect our container via any machine in local network (since we didn't specific IP in the command above)
