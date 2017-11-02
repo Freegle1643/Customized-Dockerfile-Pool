@@ -374,7 +374,7 @@ ENTRYPOINT ["./startup.sh"]
    ```bash
    cp /usr/share/doc/xserver-xspice/spiceqxl.xorg.conf.example.gz /root
    sudo gunzip spiceqxl.xorg.conf.example.gz
-   mv spiceqxl.xorg.conf.example.gz spiceqxl.xorg.conf.example
+   mv spiceqxl.xorg.conf.example spiceqxl.xorg.conf
    ```
 
 3. Now we should try this command to run Xspice
@@ -506,6 +506,25 @@ stderr_logfile=/var/log/x11vnc.err
 *This is the original `supervisord.conf` file, in the later usage, I correspondingly delete some part according to the modification I made in `Dockerfile`*
 
 We can see there are some setup process, maybe we should edit or add some commands here in order to setup Xspice properly? I'm still working on it. 
+
+
+
+#### Further improvement
+
+According to some websites like [Running GUI apps with Docker – Fábio Rehm](http://fabiorehm.com/blog/2014/09/11/running-gui-apps-with-docker/) and [user interface - Alternatives to ssh X11-forwarding for Docker containers - Stack Overflow](https://stackoverflow.com/questions/25281992/alternatives-to-ssh-x11-forwarding-for-docker-containers/25334301#25334301), I should run my docker with following command to enable it to use X.
+
+```bash
+docker run -ti \
+       -e DISPLAY=$DISPLAY \
+       -v /tmp/.X11-unix:/tmp/.X11-unix \
+       -p <host port to run spice>:<port you EXPOSE to run spice> \
+       --privileged \
+       <your name>/<image name>
+```
+
+You may want to add `--rm` to run this container only once. `--privileged` gives  XServer gets access to some devices from host (including /dev/tty0). 
+
+Now that we want start X inside a container, I typed `xinit` but got the second type of error in *Error output* above. However, when I tried `startx`, it the container actually occupies display `:0` to run its xfce4 desktop. The problem is that no mouse or keyboard input was accepted so the container looks like a frozen one. 
 
 
 
