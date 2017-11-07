@@ -4,7 +4,7 @@
 
 The following Tutorial and Docker file section contain all the important links that I refer to through this building process. Most questions can be solved via these links. You may still want to Google your problem, but I guess I've already collect most of them.  
 
-####Tutorial
+#### Tutorial
 
 [docker/Tutorials/GUI - ROS Wiki](http://wiki.ros.org/docker/Tutorials/GUI) Includes commands to run docker container that enable X server.
 
