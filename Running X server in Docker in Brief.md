@@ -233,6 +233,7 @@ xinit: server error
 ```
 
 However, `startx` succeeded. Since I run the container with `--privileged`, it also occupied the screen of my host. On the display, we see it start xfce4 successfully but without any response from mouse or keyboard.
+You can always access your containers with a new tty client by `docker exec -it [container-id] bash`
 
 ```bash
 root@a2a774c78e4e:~# startx
