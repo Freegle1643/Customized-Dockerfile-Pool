@@ -85,7 +85,6 @@ docker run -ti \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -p <host port to run spice>:5900 \
        -p <host port for tls connect>:5901 \
-       
        haoyuan/ubuntu1604-xspice-xfce
 ```
 
@@ -219,21 +218,85 @@ If you install a `ubuntu-desktop` by add it in your Dockerfile instead of our `x
 
 ### Brief concepts
 
+To put it in a nutshell, Spice provide a significantly higher performance than VNC in terms of graphics and media when using remote GUI control. And Spice offers audio support so that we more user cases would be supported. In fact that VNC is a more widely applied technics to remote GUI desktop control and maybe fine for daily office usage, but media performance and support is not as good(as I tested before).
 
+*Please visit [Spice website](https://www.spice-space.org/index.html) or refer [spice_for_newbies](https://www.spice-space.org/static/docs/spice_for_newbies.pdf) for further information about Spice*
+
+The VNC opponent I chose is a Docker image with XFCE4 and X11 VNC from Docker Hub:
+
+[Docker container images with "headless" VNC session](https://github.com/ConSol/docker-headless-vnc-container)
 
 ### Performance
 
+In this performance test, I will run a basic graphic test and bandwidth test, the result may not be solid enough. But it should reveal some basic problem.
+
 #### Graphics
+
+Instead of playing online videos as I did last time, I apply webgl samples on [websamples](http://webglsamples.org/) to test the GPU performance. All these test performs on the latest version of Firefox.
+
+##### Host Machine (Native performance)
+
+On native machine, we get a roughly 26 fps with fluent animations.
+
+![Native](http://markdownnotebucket-1251801748.file.myqcloud.com/201711Intel/webgl-g-nu.png)
+
+##### XSpice
+
+Using spice, we have a even higher fps with around 31. Note it may be a result that the spice display isn't as big as the window I opened above and the bit depth of the color is not as great as the native machine. But we can see that here it's performing quite well.
+
+![Spice](http://markdownnotebucket-1251801748.file.myqcloud.com/201711Intel/webgl-g-spice.png)
+
+##### X11 VNC
+
+VNC, as expected to be sluggish, performs a fps of around 14 is viewable but still not as good as XSpice.
+
+![VNC](http://markdownnotebucket-1251801748.file.myqcloud.com/201711Intel/webgl-g-vnc-2.png)
 
 #### Bandwidth
 
+##### Xspice
+
+We spot a bandwidth at around 6MB/s when running the webgl sample above
+
+![spice bandwidth](http://markdownnotebucket-1251801748.file.myqcloud.com/201711Intel/webgl-g-spice-bd.png)
+
+##### X11 VNC
+
+VNC has a higher bandwidth with around 20MB/s maybe because it doesn't perform effective image compression as spice.
+
+![](http://markdownnotebucket-1251801748.file.myqcloud.com/201711Intel/webgl-g-vnc-bd.png)
+
 #### Audio support
 
+There are a few third-party support to enable audio in VNC. But Spice has a native audio support and even 2D graphic acceleration. 
 
+------
+
+### Summary
+
+Even though in medium to low graphic intensive work, there is no major difference in the direct experience between XSpice and X11VNC. The bandwidth and audio support still drive us to dive deep into XSpice to see how that would be used to integrated with Intel hardware acceleration.
 
 ### Further improvement 
 
 - Enable audio
+
+  May refer to a existed implementation running Skype, Steam and other media app in Docker
+
+  [Docker Containers on the Desktop](https://blog.jessfraz.com/post/docker-containers-on-the-desktop/)
+
 - Hardware acceleration
 
- 
+
+### Reference
+
+[Xspice in containers | S3hh's Blog](https://s3hh.wordpress.com/2014/04/18/xspice-in-containers/)
+
+[Xspice server in a Container [Ghanima]](http://ghanima.net/doku.php?id=wiki:ghanima:xspiceservercontainer)
+
+[Docker container images with "headless" VNC session](https://github.com/ConSol/docker-headless-vnc-container)
+
+[xserver-xspice : Trusty (14.04) : Ubuntu](https://launchpad.net/ubuntu/trusty/+package/xserver-xspice)
+
+[spice_for_newbies.pdf](https://www.spice-space.org/static/docs/spice_for_newbies.pdf) 
+
+[Spice User Manual](https://www.spice-space.org/spice-user-manual.html)
