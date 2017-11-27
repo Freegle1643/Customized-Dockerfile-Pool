@@ -21,6 +21,7 @@ RUN apt-get update \
 		xfce4 xfce4-goodies \
 		xvfb \
 		firefox \
+		vlc browser-plugin-vlc \
 	&& apt-get autoclean \
 	&& apt-get autoremove \
 	&& rm -rf /var/lib/apt/lists/*
