@@ -48,10 +48,11 @@ RUN apt-get update \
 		x11-session-utils x11-utils x11-xfs-utils \
 	    xauth x11-common \
 	    xinit \
-		xserver-xspice xinput\
+		xserver-xspice xinput \
 		xfce4 xfce4-goodies \
 		xvfb \
 		firefox \
+		vlc browser-plugin-vlc \
 	&& apt-get autoclean \
 	&& apt-get autoremove \
 	&& rm -rf /var/lib/apt/lists/*
@@ -85,12 +86,17 @@ docker run -ti \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -p <host port to run spice>:5900 \
        -p <host port for tls connect>:5901 \
+       --device /dev/snd
        haoyuan/ubuntu1604-xspice-xfce
 ```
 
 `--privileged` Tried previously, but it seems that we should not apply this parameter for safe concern.
 
 `--rm` If you only want to run your container for only once, add this parameter.
+
+`--device /dev/snd` This command enable container to use audio device in host machine
+
+*Note that if Docker version is below Docker 1.8, `-v /dev/snd:/dev/snd --privileged` is to be added before that command*
 
 [Here](https://stackoverflow.com/questions/25281992/alternatives-to-ssh-x11-forwarding-for-docker-containers/25334301#25334301) is a further explanation I find in Stack Overflow, sure, you will always want to check [official document](https://docs.docker.com/engine/reference/run/) to see what's what.
 
@@ -278,11 +284,13 @@ Even though in medium to low graphic intensive work, there is no major differenc
 
 ### Further improvement 
 
-- Enable audio
+- Enable audio [Solved]
 
-  May refer to a existed implementation running Skype, Steam and other media app in Docker
+  May refer to a existed implementation running Skype, Steam and other media app in Docker.
 
   [Docker Containers on the Desktop](https://blog.jessfraz.com/post/docker-containers-on-the-desktop/)
+
+  *This function has been added and updated the Dockerfile an run command above.*
 
 - Hardware acceleration
 
