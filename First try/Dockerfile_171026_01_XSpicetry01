@@ -3,13 +3,6 @@ MAINTAINER Hao Yuan <freegleyuan@foxmail.com>
 
 ENV HOME /root
 
-#set up proxy for intel inner network
-ENV https_proxy "https://child-prc.intel.com:913/"
-ENV http_proxy "http://child-prc.intel.com:913/"
-ENV ftp_proxy "http://child-prc.intel.com:913/"
-ENV no_proxy "localhost,127.0.0.1,.intel.com"
-
-
 RUN apt-get update \
 	&& apt-get install -y supervisor \
 		apt-utils \
