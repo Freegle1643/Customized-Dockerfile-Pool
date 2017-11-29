@@ -36,13 +36,6 @@ MAINTAINER Hao Yuan <freegleyuan@foxmail.com>
 
 ENV HOME /root
 
-#set up proxy for intel inner network
-ENV https_proxy "https://child-prc.intel.com:913/"
-ENV http_proxy "http://child-prc.intel.com:913/"
-ENV ftp_proxy "http://child-prc.intel.com:913/"
-ENV no_proxy "localhost,127.0.0.1,.intel.com"
-
-
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   	&& echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list \
 	&& apt-get update \
@@ -158,13 +151,6 @@ MAINTAINER Hao Yuan <freegleyuan@foxmail.com>
 
 ENV HOME /root
 ENV DEBIAN_FRONTEND=noninteractive
-
-#set up proxy for intel inner network
-#ENV https_proxy "https://child-prc.intel.com:913/"
-#ENV http_proxy "http://child-prc.intel.com:913/"
-#ENV ftp_proxy "http://child-prc.intel.com:913/"
-#ENV no_proxy "localhost,127.0.0.1,.intel.com"
-
 
 RUN apt-get update \
 	&& apt-get install -y supervisor \
