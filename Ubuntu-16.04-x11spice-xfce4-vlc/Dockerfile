@@ -10,16 +10,17 @@ RUN apt-get update \
 		wget \
 		curl \
 		net-tools \
-		iputils-ping \s
+		iputils-ping \
 		openssh-server vim-tiny \
 		xserver-xorg-core \
 		xfonts-base \
 		x11-session-utils x11-utils x11-xfs-utils \
-	    xauth x11-common \
-	    xinit \
-		xserver-xspice xinput\
+	   	xauth x11-common \
+	   	xinit \
 		xfce4 xfce4-goodies \
+		xvfb \
 		firefox \
+		vlc browser-plugin-vlc \
 	&& apt-get autoclean \
 	&& apt-get autoremove \
 	&& rm -rf /var/lib/apt/lists/*
@@ -28,5 +29,6 @@ WORKDIR /root
 
 CMD /bin/bash
 
-EXPOSE 5910
+EXPOSE 5900
+EXPOSE 5901
 EXPOSE 22
